@@ -53,7 +53,7 @@ describe('RegisterComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  
+
   // Unit Test
   it('should have all form fields necessary to register', () => {
     const nativeEl = fixture.nativeElement;
@@ -110,5 +110,23 @@ describe('RegisterComponent', () => {
     req.flush({});
 
     expect(navigateSpy).toHaveBeenCalledWith(['/login']);
+  });
+  // Integration Test
+  it('should display an error message on registration failure', () => {
+    component.form.controls['firstName'].setValue('John');
+    component.form.controls['lastName'].setValue('Doe');
+    component.form.controls['email'].setValue('john.doe@example.com');
+    component.form.controls['password'].setValue('Password123');
+    
+    component.submit();
+
+    const req = httpMock.expectOne({
+      url: 'api/auth/register',
+      method: 'POST'
+    });
+
+    req.flush({ errorMessage: 'Registration failed' }, { status: 500, statusText: 'Internal Server Error' });
+
+    expect(component.onError).toBeTruthy();
   });
 });
