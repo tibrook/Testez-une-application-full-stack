@@ -16,7 +16,8 @@ import { SessionApiService } from '../../services/session-api.service';
 import { FormComponent } from './form.component';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-
+import { of } from 'rxjs';
+import { Session } from '../../interfaces/session.interface';
 describe('FormComponent', () => {
   let component: FormComponent;
   let fixture: ComponentFixture<FormComponent>;
@@ -140,6 +141,7 @@ describe('FormComponent', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['sessions']);
   });
 
+  
   // Integration Test
   it('should update a session and navigate to sessions page on successful update', () => {
     component.onUpdate = true;
@@ -162,4 +164,34 @@ describe('FormComponent', () => {
 
     expect(navigateSpy).toHaveBeenCalledWith(['sessions']);
   });
+  // Integration Test
+  it('should navigate away if user is not admin', () => {
+    mockSessionService.sessionInformation.admin = false;
+    component.ngOnInit();
+    expect(fakeRouter.navigate).toHaveBeenCalledWith(['/sessions']);
+  });
+  // Integration Test
+  it('should initialize form for updating a session', () => {
+    component.onUpdate = true;
+    (component as any).id = '1';
+    const session: Session = {
+      id: 1,
+      name: 'Yoga Session',
+      date: new Date('2023-05-20'), 
+      teacher_id: 1,
+      description: 'A relaxing yoga session',
+      users: []
+    };
+
+    jest.spyOn(sessionApiService, 'detail').mockReturnValue(of(session));
+
+    component.ngOnInit();
+    expect(component.sessionForm?.value).toEqual({
+      "date": "",
+      "description": "",
+      "name": "",
+      "teacher_id": ""
+    });
+  });
+
 });
