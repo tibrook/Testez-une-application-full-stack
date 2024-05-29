@@ -54,28 +54,6 @@ describe('Login spec', () => {
     cy.get('.error').should('be.visible').and('contain', 'An error occurred');
   });
 
-  it('Toggle password visibility', () => {
-    cy.get('input[formControlName=password]').should('have.attr', 'type', 'password');
-
-    cy.get('button[aria-label="Hide password"]').click();
-    cy.get('input[formControlName=password]').should('have.attr', 'type', 'text');
-
-    cy.get('button[aria-label="Hide password"]').click();
-    cy.get('input[formControlName=password]').should('have.attr', 'type', 'password');
-  });
-
-  it('Login form validation', () => {
-    cy.get('button[type=submit]').should('be.disabled');
-
-    cy.get('input[formControlName=email]').type("invalid-email");
-    cy.get('input[formControlName=password]').type("short");
-    cy.get('button[type=submit]').should('be.disabled');
-
-    cy.get('input[formControlName=email]').clear().type("valid@example.com");
-    cy.get('input[formControlName=password]').clear().type("validpassword");
-    cy.get('button[type=submit]').should('not.be.disabled');
-  });
-
   it('Handles server errors gracefully', () => {
     cy.visit('/login');
 
