@@ -1,6 +1,7 @@
 import { defineConfig } from 'cypress'
 
 export default defineConfig({
+  projectId: '4oydyk',
   videosFolder: 'cypress/videos',
   screenshotsFolder: 'cypress/screenshots',
   fixturesFolder: 'cypress/fixtures',
@@ -13,4 +14,7 @@ export default defineConfig({
     },
     baseUrl: 'http://localhost:4200',
   },
+  viewportWidth: 1280,
+  viewportHeight: 720
+
 })
