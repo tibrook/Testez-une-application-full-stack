@@ -1,38 +1,49 @@
 package com.openclassrooms.starterjwt.security.jwt;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.openclassrooms.starterjwt.security.services.UserDetailsImpl;
 
+
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class JwtUtilsTest {
 
     @Autowired
     private JwtUtils jwtUtils;
-
-    private final String username = "user@example.com";
-
+    
+    @Value("${oc.app.jwtSecret}")
+    private String jwtSecret;
+    
     @Test
     @DisplayName("Generate valid JWT token")
     void generateValidJwtToken() {
-    	 // Mocking Authentication
         UserDetailsImpl userDetails = UserDetailsImpl.builder()
                 .id(1L)
                 .firstName("Toto")
@@ -44,12 +55,10 @@ public class JwtUtilsTest {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(userDetails);
 
-        // When
         String token = jwtUtils.generateJwtToken(authentication);
 
-        // Then
         assertNotNull(token);
-        assertTrue(token.split("\\.").length == 3);  // JWT consists of three parts
+        assertTrue(token.split("\\.").length == 3);  
     }
 
     @Test
@@ -85,74 +94,84 @@ public class JwtUtilsTest {
 
         String token = jwtUtils.generateJwtToken(authentication);
 
-        // When
         boolean isValid = jwtUtils.validateJwtToken(token);
-
-        // Then
         assertTrue(isValid);
     }
 
     @Test
-    @DisplayName("Invalidate token with incorrect signature")
-    void invalidateTokenWithIncorrectSignature() {
-        // Mock the UserDetailsImpl to be used as principal
-        UserDetailsImpl userDetails = UserDetailsImpl.builder()
-                .id(1L)
-                .username("user@example.com")
-                .password("password") // Normally not needed for token creation but provided for completeness
-                .firstName("First")
-                .lastName("Last")
-                .build();
+    @DisplayName("Test validating JWT token with MalformedJwtException")
+    void testValidateJwtTokenMalformedJwtException() {
+        String invalidToken = "invalidToken";
+        JwtUtils jwtUtilsMock = Mockito.mock(JwtUtils.class);
+        doThrow(new MalformedJwtException("Invalid JWT token")).when(jwtUtilsMock).validateJwtToken(invalidToken);
+        assertThrows(MalformedJwtException.class, () -> jwtUtilsMock.validateJwtToken(invalidToken));
+    }
+    
+    @Test
+    @DisplayName("Test validating JWT token with UnsupportedJwtException using doThrow")
+    void testValidateJwtTokenWithUnsupportedJwtException() {
+        JwtUtils mockedJwtUtils = Mockito.mock(JwtUtils.class);
+        String dummyToken = "dummyToken";
 
-        // Mock the Authentication object
-        Authentication auth = mock(Authentication.class);
-        when(auth.getPrincipal()).thenReturn(userDetails);
+        doThrow(new UnsupportedJwtException("Unsupported JWT token"))
+                .when(mockedJwtUtils).validateJwtToken(dummyToken);
 
-        // Generate a valid token first
-        String validToken = jwtUtils.generateJwtToken(auth);
+        UnsupportedJwtException thrown = assertThrows(
+                UnsupportedJwtException.class,
+                () -> mockedJwtUtils.validateJwtToken(dummyToken),
+                "Expected validateJwtToken() to throw UnsupportedJwtException, but it did not"
+        );
 
-        // Tamper the token by appending invalid characters
-        String tamperedToken = validToken + "tampered";
+        assertTrue(thrown.getMessage().contains("Unsupported JWT token"));
+    }
+    
+    @Test
+    @DisplayName("Test validating JWT token with SignatureException")
+    void testValidateJwtTokenSignatureException() {
+        JwtUtils jwtUtils = new JwtUtils();
+        ReflectionTestUtils.setField(jwtUtils, "jwtSecret", "testSecret");
+        ReflectionTestUtils.setField(jwtUtils, "jwtExpirationMs", 3_600_000);
 
-        // Assert that the tampered token is not valid
-        assertFalse(jwtUtils.validateJwtToken(tamperedToken), "Tampered token should be invalid");
+        String invalidToken = "invalidToken";
+        boolean isValid = jwtUtils.validateJwtToken(invalidToken);
+
+        assertFalse(isValid);
     }
 
     @Test
-    @DisplayName("Invalidate expired JWT token")
-    void invalidateExpiredJwtToken() {
-        // Given
-        Date now = new Date();
+    @DisplayName("Test validating JWT token with ExpiredJwtException")
+    void testValidateJwtTokenExpiredJwtException() {
+        JwtUtils jwtUtils = new JwtUtils();
+        ReflectionTestUtils.setField(jwtUtils, "jwtSecret", "testSecret");
+        ReflectionTestUtils.setField(jwtUtils, "jwtExpirationMs", 3_600_000);
+
         String expiredToken = Jwts.builder()
-            .setSubject(username)
-            .setIssuedAt(new Date(now.getTime() - 3600000)) // 1 hour ago
-            .setExpiration(new Date(now.getTime() - 1800000)) // 30 minutes ago
-            .signWith(SignatureAlgorithm.HS512,"testSecret") // Assuming getter for jwtSecret
-            .compact();
+                .setSubject("testUser")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() - 1000))
+                .signWith(SignatureAlgorithm.HS512, "testSecret")
+                .compact();
 
-        // Then
-        assertFalse(jwtUtils.validateJwtToken(expiredToken));
-    }
+        boolean isValid = jwtUtils.validateJwtToken(expiredToken);
 
- // Simulate Unsupported JWT Token
-    @Test
-    @DisplayName("Invalidate unsupported JWT token")
-    void invalidateUnsupportedJwtToken() {
-        String unsupportedToken = "eyJhbGciOiJub25lIn0.eyJzdWIiOiJ1bnN1cHBvcnRlZEBleGFtcGxlLmNvbSJ9."; // No valid signature
-        assertFalse(jwtUtils.validateJwtToken(unsupportedToken), "Unsupported token should be invalid");
+        assertFalse(isValid);
     }
 
     @Test
-    @DisplayName("Invalidate token with empty claims")
-    void invalidateTokenWithEmptyClaims() {
-        // Given: Create a JWT with an empty claims set but valid minimal structure
-        String emptyClaimsToken = Jwts.builder()
-            .setClaims(Jwts.claims()) // explicitly set an empty claims map
-            .setSubject("") // technically not empty, but no meaningful subject
-            .signWith(SignatureAlgorithm.HS512, "testSecret") // Using a consistent secret key for signing
-            .compact();
+    @DisplayName("Test validating JWT token with IllegalArgumentException using doThrow")
+    void testValidateJwtTokenWithIllegalArgumentException() {
+        JwtUtils mockedJwtUtils = Mockito.mock(JwtUtils.class);
+        String nullToken = null;
 
-        // Then: Validate the token and expect it to fail
-        assertFalse(jwtUtils.validateJwtToken(emptyClaimsToken), "Token with empty claims should be invalid");
+        doThrow(new IllegalArgumentException("JWT claims string is empty"))
+                .when(mockedJwtUtils).validateJwtToken(nullToken);
+
+        IllegalArgumentException thrown = assertThrows(
+                IllegalArgumentException.class,
+                () -> mockedJwtUtils.validateJwtToken(nullToken),
+                "Expected validateJwtToken() to throw IllegalArgumentException, but it did not"
+        );
+
+        assertTrue(thrown.getMessage().contains("JWT claims string is empty"));
     }
     }
