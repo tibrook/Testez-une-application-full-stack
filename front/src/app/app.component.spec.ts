@@ -3,7 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { expect } from '@jest/globals';
-
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule} from '@angular/material/icon';
 import { AppComponent } from './app.component';
 
 
@@ -13,7 +15,10 @@ describe('AppComponent', () => {
       imports: [
         RouterTestingModule,
         HttpClientModule,
-        MatToolbarModule
+        MatToolbarModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatIconModule
       ],
       declarations: [
         AppComponent
