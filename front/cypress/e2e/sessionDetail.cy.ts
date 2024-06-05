@@ -10,36 +10,25 @@ const TEST_SESSION = {
     updatedAt: '2024-01-26T09:20:22',
   };
 const TEACHERS_LIST = [
-    {
-        id: 1,
-        lastName: 'JOHN',
-        firstName: 'Doe',
-        createdAt: '2024-05-15T15:33:42',
-        updatedAt: '2024-05-18T15:33:42',
-    },
-    {
-        id: 2,
-        lastName: 'Johny',
-        firstName: 'Doette',
-        createdAt: '2024-05-15T15:33:42',
-        updatedAt: '2024-05-18T15:33:42',
-    },
+  {
+      id: 1,
+      lastName: 'JOHN',
+      firstName: 'Doe',
+      createdAt: '2024-05-15T15:33:42',
+      updatedAt: '2024-05-18T15:33:42',
+  },
+  {
+      id: 2,
+      lastName: 'Johny',
+      firstName: 'Doette',
+      createdAt: '2024-05-15T15:33:42',
+      updatedAt: '2024-05-18T15:33:42',
+  },
 ];
-  const SESSIONS_LIST = [TEST_SESSION];
+const SESSIONS_LIST = [TEST_SESSION];
 
 describe('Session Detail Page', () => {
     beforeEach(() => {
-      cy.visit('/login');
-  
-      cy.intercept('POST', '/api/auth/login', {
-        body: {
-          id: 1,
-          username: 'userName',
-          firstName: 'firstName',
-          lastName: 'lastName',
-          admin: true
-        }
-      }).as('login');
       cy.intercept('GET', '/api/session', (req) => {
         req.reply(SESSIONS_LIST);
       });
@@ -51,10 +40,8 @@ describe('Session Detail Page', () => {
         `/api/teacher/${TEACHERS_LIST[0].id}`,
         TEACHERS_LIST[0]
         );
-  
-      cy.get('input[formControlName=email]').type('yoga@studio.com');
-      cy.get('input[formControlName=password]').type('test!1234{enter}{enter}');
-      cy.wait('@login');
+      cy.login();
+
     });
   
     it('should display session details', () => {
@@ -74,7 +61,7 @@ describe('Session Detail Page', () => {
         body: {}
       }).as('deleteSession');
   
-      cy.get('button').contains('Delete').click();
+      cy.contains('span', 'Delete').should('be.visible').click();
       cy.wait('@deleteSession');
       cy.url().should('include', '/sessions');
       cy.get('.mat-snack-bar-container').should('contain', 'Session deleted !');
