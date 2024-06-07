@@ -16,7 +16,7 @@ describe('LoginComponent', () => {
   let mockAuthService: any;
   let mockRouter: any;
   let mockSessionService: any;
-
+  // Setting up mocks and initializing the component
   beforeEach(async () => {
     mockAuthService = {
       login: jest.fn()
@@ -27,7 +27,7 @@ describe('LoginComponent', () => {
     mockSessionService = {
       logIn: jest.fn()
     };
-
+    // Configure the testing environment
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule,MatCardModule,MatFormFieldModule,MatIconModule,MatInputModule,BrowserAnimationsModule],
       declarations: [LoginComponent],

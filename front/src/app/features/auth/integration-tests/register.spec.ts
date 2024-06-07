@@ -11,6 +11,9 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
+import { LoginComponent } from '../components/login/login.component';
+import { NgZone } from '@angular/core';
+import { NavigationExtras } from '@angular/router';
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
@@ -22,17 +25,25 @@ describe('RegisterComponent', () => {
       imports: [
         ReactiveFormsModule,
         HttpClientTestingModule,
-        RouterTestingModule,
+        RouterTestingModule.withRoutes([
+          { path: 'sessions', component: LoginComponent } 
+        ]),
         MatFormFieldModule,
         MatInputModule,
         BrowserAnimationsModule,
         NoopAnimationsModule,
         MatCardModule
       ],
-      declarations: [ RegisterComponent ],
+      declarations: [ RegisterComponent , LoginComponent],
       providers: [
         AuthService,
-        FormBuilder
+        FormBuilder,
+        {
+          provide: Router,
+          useFactory: (ngZone: NgZone) => ({
+            navigate: jest.fn((commands: any[], extras?: NavigationExtras) => ngZone.run(() => router.navigate(commands, extras)))
+          }),
+        }
       ]
     }).compileComponents();
 

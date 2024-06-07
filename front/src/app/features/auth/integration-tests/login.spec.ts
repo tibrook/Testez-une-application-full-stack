@@ -13,6 +13,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; // Often required for animations in Material components
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { ListComponent } from '../../sessions/components/list/list.component';
+import { tick } from '@angular/core/testing';
+import { fakeAsync } from '@angular/core/testing';
+import { NgZone } from '@angular/core';
+import { NavigationExtras } from '@angular/router';
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
@@ -24,15 +29,23 @@ describe('LoginComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         ReactiveFormsModule,
-        RouterTestingModule,
+        RouterTestingModule.withRoutes([
+          { path: 'sessions', component: ListComponent } 
+        ]),
         HttpClientTestingModule,
         MatCardModule,
         MatFormFieldModule, BrowserAnimationsModule, MatInputModule,MatIconModule
       ],
-      declarations: [ LoginComponent ],
+      declarations: [ LoginComponent,ListComponent ],
       providers: [
         AuthService,
-        SessionService
+        SessionService,
+        {
+          provide: Router,
+          useFactory: (ngZone: NgZone) => ({
+            navigate: jest.fn((commands: any[], extras?: NavigationExtras) => ngZone.run(() => router.navigate(commands, extras)))
+          }),
+        }
       ]
     }).compileComponents();
 
@@ -40,12 +53,11 @@ describe('LoginComponent', () => {
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService);
     sessionService = TestBed.inject(SessionService);
-    router = TestBed.inject(Router);
-
+    router = TestBed.get(Router);
     fixture.detectChanges();
   });
 
-  it('should handle successful login', async () => {
+  it('should handle successful login', async() => {
     const response = {
         token: '123abc',
         type: 'Bearer',

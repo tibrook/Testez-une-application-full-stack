@@ -6,7 +6,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { SessionService } from 'src/app/services/session.service';
-
+import { MatIconModule } from '@angular/material/icon';
 describe('ListComponent', () => {
   let component: ListComponent;
   let fixture: ComponentFixture<ListComponent>;
@@ -15,7 +15,7 @@ describe('ListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, HttpClientTestingModule, MatCardModule],
+      imports: [RouterTestingModule, HttpClientTestingModule, MatCardModule,MatIconModule],
       declarations: [ListComponent],
       providers: [SessionApiService, SessionService]
     }).compileComponents();

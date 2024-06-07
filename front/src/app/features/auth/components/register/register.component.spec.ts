@@ -17,6 +17,7 @@ describe('RegisterComponent', () => {
   let mockRouter: any;
 
   beforeEach(async () => {
+    // Setup for AuthService and Router with Jest mocks
     mockAuthService = {
       register: jest.fn()
     };
@@ -47,11 +48,14 @@ describe('RegisterComponent', () => {
     mockAuthService.register.mockReturnValue(of(undefined));
     component.submit();
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/login']);
+    expect(mockAuthService.register).toHaveBeenCalledTimes(1);
+
   });
 
   it('should set onError to true on registration failure', () => {
     mockAuthService.register.mockReturnValue(throwError(() => new Error('Registration failed')));
     component.submit();
     expect(component.onError).toBeTruthy();
+    expect(mockAuthService.register).toHaveBeenCalledTimes(1);
   });
 });

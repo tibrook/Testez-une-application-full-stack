@@ -7,7 +7,6 @@ import { ListComponent } from './list.component';
 import { SessionService } from '../../../../services/session.service';
 import { SessionApiService } from '../../services/session-api.service';
 import { of } from 'rxjs';
-
 describe('ListComponent', () => {
   let component: ListComponent;
   let fixture: ComponentFixture<ListComponent>;
