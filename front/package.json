@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "start": "ng serve",
-    "test": "jest --coverage",
+    "test": "jest --coverage --detectOpenHandles",
     "test:watch": "jest --watch",
+    "test:integration": "jest --coverage --no-cache --findRelatedTests src/app/features/auth/integration-tests/login.spec.ts src/app/features/auth/integration-tests/register.spec.ts  src/app/app-routing.module.spec.ts src/app/guards/auth.guard.spec.ts src/app/guards/unauth.guard.spec.ts",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "e2e:ci": "ng run yoga:e2e-ci",

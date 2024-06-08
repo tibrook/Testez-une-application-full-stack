@@ -10,12 +10,10 @@ import { Router } from '@angular/router';
 import { ComponentFixture } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; // Often required for animations in Material components
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { ListComponent } from '../../sessions/components/list/list.component';
-import { tick } from '@angular/core/testing';
-import { fakeAsync } from '@angular/core/testing';
 import { NgZone } from '@angular/core';
 import { NavigationExtras } from '@angular/router';
 describe('LoginComponent', () => {
@@ -90,4 +88,13 @@ describe('LoginComponent', () => {
     expect(component.onError).toBeTruthy();
     expect(navigateSpy).not.toHaveBeenCalled();
   });
+  it('should render child components based on route', async () => {
+    const router: Router = TestBed.inject(Router);
+    const location: Location = TestBed.inject(Location);
+    await router.navigate(['me']); // Assurez-vous que 'me' est un chemin valide défini dans votre routage
+    await fixture.whenStable();
+    expect(location.path()).toBe('/me');
+    expect(fixture.nativeElement.querySelector('app-me')).not.toBeNull(); // Assurez-vous que le composant 'app-me' est utilisé
+  });
+  
 });
