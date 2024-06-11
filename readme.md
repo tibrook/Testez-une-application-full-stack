@@ -97,8 +97,8 @@ VALUES ('Admin', 'Admin', true, 'yoga@studio.com', '$2a$10$.Hsa/ZjUVaHqi0tp9xieM
 - Initialize the database using the provided schema and data scripts.
 
 ### Starting the Servers
-- Start the backend server by running `java -jar <backend-jar-file>` from the backend directory.
-- Start the frontend by navigating to the frontend directory and running `ng serve`.
+- Start the backend server by running `mvn spring-boot:run` from the backend directory.
+- Start the frontend by navigating to the frontend directory and running `nnpm run start`.
 
 ## Usage
 
