@@ -91,10 +91,10 @@ describe('LoginComponent', () => {
   it('should render child components based on route', async () => {
     const router: Router = TestBed.inject(Router);
     const location: Location = TestBed.inject(Location);
-    await router.navigate(['me']); // Assurez-vous que 'me' est un chemin valide défini dans votre routage
+    await router.navigate(['me']); 
     await fixture.whenStable();
     expect(location.path()).toBe('/me');
-    expect(fixture.nativeElement.querySelector('app-me')).not.toBeNull(); // Assurez-vous que le composant 'app-me' est utilisé
+    expect(fixture.nativeElement.querySelector('app-me')).not.toBeNull(); 
   });
-  
+
 });

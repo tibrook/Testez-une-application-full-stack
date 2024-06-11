@@ -10,10 +10,10 @@ module.exports = {
   coverageDirectory: "./coverage/jest",
   coverageReporters: ["html", "text", "lcov"],
   collectCoverageFrom: [
-    "src/app/**/*.{ts,tsx}", // Inclure tous les fichiers TypeScript dans src/app
-    "!src/app/**/*.interface.{ts,tsx}", // Exclure les fichiers d'interface
-    "!src/app/**/*.spec.{ts,tsx}", // Exclure les fichiers de test
-    "!**/node_modules/**", // Exclure le dossier node_modules
+    "src/app/**/*.{ts,tsx}",
+    "!src/app/**/*.interface.{ts,tsx}",
+    "!src/app/**/*.spec.{ts,tsx}",
+    "!**/node_modules/**",
   ],
   testPathIgnorePatterns: ["<rootDir>/node_modules/"],
   coveragePathIgnorePatterns: ["<rootDir>/node_modules/"],
