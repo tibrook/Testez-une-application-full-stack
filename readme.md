@@ -118,7 +118,7 @@ Stack Used: Jest.
 npm run test
 ```
 
-This will lauch all tests & generate a report in /coverage/jest/index.html
+This will lauch all tests & generate a report in `/coverage/jest/index.html`
 
 - For e2e tests, run the following command : 
 Stack Used: Cypress.
@@ -138,7 +138,17 @@ Lauch e2e coverage :
 npm run e2e:coverage
 ```
 
-This will lauch all tests & generate a report in /coverage/Icov-report/index.html
+This will lauch all tests & generate a report in `/coverage/Icov-report/index.html`
+
+### Backend 
+
+To launch all tests & get the coverage file, launch the following command : 
+
+```shell
+mvn clean site
+```
+
+The coverage is located in `/target/site/jacoco/index.html`
 
 ## Points of Caution
 
