@@ -10,22 +10,23 @@ import { MatInputModule } from '@angular/material/input';
 import { MeComponent } from './me.component';
 import { UserService } from '../../services/user.service';
 import { SessionService } from '../../services/session.service';
-import { User } from '../../interfaces/user.interface';
 
 describe('MeComponent', () => {
   let component: MeComponent;
   let fixture: ComponentFixture<MeComponent>;
+  // Mock definitions for dependencies
   let userServiceMock: Partial<UserService>;
   let sessionServiceMock: Partial<SessionService>;
   let matSnackBarMock: Partial<MatSnackBar>;
   let routerMock: Partial<Router>;
   let spyHistoryBack: jest.SpyInstance; 
+  // Setup before each test: configure testing module and create component instance
   beforeEach(async () => {
     userServiceMock = {
       getById: jest.fn().mockReturnValue(of({ id: '1', name: 'Test User' })),
       delete: jest.fn().mockReturnValue(of({}))
     };
-
+    // Mock service setups
     sessionServiceMock = {
       sessionInformation: {
         token: '123abc',
@@ -57,13 +58,14 @@ describe('MeComponent', () => {
         { provide: Router, useValue: routerMock }
       ]
     }).compileComponents();
-    
+    // Compiles the component and initializes it
     fixture = TestBed.createComponent(MeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
     spyHistoryBack = jest.spyOn(window.history, 'back');
 
   });
+  // Cleanup after each test
   afterEach(() => {
     spyHistoryBack.mockRestore(); 
   });

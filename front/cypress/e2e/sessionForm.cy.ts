@@ -1,17 +1,6 @@
 describe('Session Creation', () => {
     beforeEach(() => {
-        cy.visit('/login');
-
-        cy.intercept('POST', '/api/auth/login', {
-          body: {
-            id: 1,
-            username: 'userName',
-            firstName: 'firstName',
-            lastName: 'lastName',
-            admin: true
-          },
-        }).as('login');
-
+        cy.login();
         cy.intercept('GET', '/api/session', {
           id: 1,
           name: 'TEST session',
@@ -29,10 +18,6 @@ describe('Session Creation', () => {
             { id: 2, firstName: 'Jane', lastName: 'Smith' }
           ]
         }).as('getTeachers');
-    
-        cy.get('input[formControlName=email]').type("yoga@studio.com");
-        cy.get('input[formControlName=password]').type(`${"test!1234"}{enter}{enter}`);
-        cy.url().should('include', '/sessions');
     });
   
     it('should create a session successfully', () => {
