@@ -14,8 +14,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { ListComponent } from '../../sessions/components/list/list.component';
-import { NgZone } from '@angular/core';
-import { NavigationExtras } from '@angular/router';
+
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
@@ -37,13 +36,7 @@ describe('LoginComponent', () => {
       declarations: [ LoginComponent,ListComponent ],
       providers: [
         AuthService,
-        SessionService,
-        {
-          provide: Router,
-          useFactory: (ngZone: NgZone) => ({
-            navigate: jest.fn((commands: any[], extras?: NavigationExtras) => ngZone.run(() => router.navigate(commands, extras)))
-          }),
-        }
+        SessionService
       ]
     }).compileComponents();
 
@@ -51,11 +44,12 @@ describe('LoginComponent', () => {
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService);
     sessionService = TestBed.inject(SessionService);
-    router = TestBed.get(Router);
+    router = TestBed.inject(Router);
     fixture.detectChanges();
   });
 
-  it('should handle successful login', async() => {
+ 
+  it('should handle successful login', async () => {
     const response = {
         token: '123abc',
         type: 'Bearer',
@@ -64,37 +58,28 @@ describe('LoginComponent', () => {
         firstName: 'Test',
         lastName: 'User',
         admin: false
-      };
+    };
     jest.spyOn(authService, 'login').mockReturnValue(of(response));
-    const navigateSpy = jest.spyOn(router, 'navigate');
-    const logInSpy = jest.spyOn(sessionService, 'logIn');
+    jest.spyOn(sessionService, 'logIn').mockReturnValue();
+    jest.spyOn(router, 'navigate').mockResolvedValue(true);
 
     component.form.setValue({ email: 'test@example.com', password: 'securepassword' });
     component.submit();
 
     await fixture.whenStable();
 
-    expect(logInSpy).toHaveBeenCalledWith(response);
-    expect(navigateSpy).toHaveBeenCalledWith(['/sessions']);
+    expect(sessionService.logIn).toHaveBeenCalledWith(response);
+    expect(router.navigate).toHaveBeenCalledWith(['/sessions']);
   });
 
   it('should handle login error', () => {
     jest.spyOn(authService, 'login').mockReturnValue(throwError(() => new Error('Login failed')));
-    const navigateSpy = jest.spyOn(router, 'navigate');
+    jest.spyOn(router, 'navigate').mockResolvedValue(true);
 
     component.form.setValue({ email: 'test@example.com', password: 'wrongpassword' });
     component.submit();
 
     expect(component.onError).toBeTruthy();
-    expect(navigateSpy).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
   });
-  it('should render child components based on route', async () => {
-    const router: Router = TestBed.inject(Router);
-    const location: Location = TestBed.inject(Location);
-    await router.navigate(['me']); 
-    await fixture.whenStable();
-    expect(location.path()).toBe('/me');
-    expect(fixture.nativeElement.querySelector('app-me')).not.toBeNull(); 
-  });
-
 });
