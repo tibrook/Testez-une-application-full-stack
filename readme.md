@@ -145,7 +145,7 @@ This will lauch all tests & generate a report in `/coverage/Icov-report/index.ht
 To launch all tests & get the coverage file, launch the following command : 
 
 ```shell
-mvn clean site
+mvn clean test
 ```
 
 The coverage is located in `/target/site/jacoco/index.html`
